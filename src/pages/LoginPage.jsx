@@ -22,9 +22,13 @@ export default function LoginPage() {
       return
     }
     setLoading(true)
-    await new Promise((r) => setTimeout(r, 800))
-    login({ email: form.email, name: form.email.split('@')[0] })
-    navigate('/dashboard')
+    try {
+      await login(form.email, form.password)
+      navigate('/dashboard')
+    } catch (err) {
+      setError(err.message || 'Failed to login')
+      setLoading(false)
+    }
   }
 
   return (

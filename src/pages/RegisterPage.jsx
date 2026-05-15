@@ -11,7 +11,7 @@ export default function RegisterPage() {
   const [showPw, setShowPw] = useState(false)
   const [loading, setLoading] = useState(false)
   const [errors, setErrors] = useState({})
-  const { login } = useAuth()
+  const { register } = useAuth()
   const navigate = useNavigate()
 
   const validate = () => {
@@ -29,9 +29,13 @@ export default function RegisterPage() {
     if (Object.keys(errs).length) { setErrors(errs); return }
     setErrors({})
     setLoading(true)
-    await new Promise((r) => setTimeout(r, 900))
-    login({ email: form.email, name: form.name })
-    navigate('/dashboard')
+    try {
+      await register(form.name, form.email, form.password)
+      navigate('/dashboard')
+    } catch (err) {
+      setErrors({ email: err.message || 'Failed to register' })
+      setLoading(false)
+    }
   }
 
   const field = (id) => ({
