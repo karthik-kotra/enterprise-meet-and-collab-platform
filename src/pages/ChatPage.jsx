@@ -18,9 +18,9 @@ function getInitials(name = '') {
   return name.split(' ').map((n) => n[0]).join('').toUpperCase().slice(0, 2)
 }
 
-function ContactRow({ contact, isActive, lastMessage, onClick }) {
+function ContactRow({ contact, isActive, lastMessage, onClick, currentUser }) {
   const preview = lastMessage
-    ? lastMessage.senderId === 'me'
+    ? lastMessage.senderId === currentUser?.id
       ? `You: ${lastMessage.text}`
       : lastMessage.text
     : 'No messages yet'
@@ -58,7 +58,7 @@ function ContactRow({ contact, isActive, lastMessage, onClick }) {
           </p>
           {lastMessage && (
             <span className="text-[10px] text-muted-foreground shrink-0">
-              {formatTime(lastMessage.ts)}
+              {formatTime(lastMessage.createdAt || lastMessage.ts)}
             </span>
           )}
         </div>
@@ -93,7 +93,7 @@ function ChatBubble({ msg, isMe, senderName }) {
             isMe ? 'text-right' : 'text-left'
           )}
         >
-          {format(new Date(msg.ts), 'h:mm a')}
+          {format(new Date(msg.createdAt || msg.ts), 'h:mm a')}
         </span>
       </div>
     </div>
@@ -117,7 +117,7 @@ function EmptyState() {
 }
 
 export default function ChatPage() {
-  const { contacts, activeContactId, setActiveContactId, getMessages, sendMessage, getLastMessage } = useChat()
+  const { contacts, activeContactId, setActiveContactId, getMessages, sendMessage, getLastMessage, currentUser } = useChat()
   const [search, setSearch] = useState('')
   const [draft, setDraft] = useState('')
   const messagesEndRef = useRef(null)
@@ -190,6 +190,7 @@ export default function ChatPage() {
                 isActive={contact.id === activeContactId}
                 lastMessage={getLastMessage(contact.id)}
                 onClick={() => setActiveContactId(contact.id)}
+                currentUser={currentUser}
               />
             ))
           )}
@@ -238,9 +239,9 @@ export default function ChatPage() {
               ) : (
                 msgs.map((msg) => (
                   <ChatBubble
-                    key={msg.id}
+                    key={msg._id || msg.id}
                     msg={msg}
-                    isMe={msg.senderId === 'me'}
+                    isMe={msg.senderId === currentUser.id}
                     senderName={activeContact.name}
                   />
                 ))

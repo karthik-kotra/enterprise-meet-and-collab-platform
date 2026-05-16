@@ -30,7 +30,7 @@ exports.register = async (req, res) => {
 
     if (user) {
       const token = generateToken(user._id);
-      
+
       // Set token in HTTP-only cookie
       res.cookie('jwt', token, {
         httpOnly: true,
